@@ -1,8 +1,10 @@
+import json
 import os
 import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+import websocket
 from mcp.server.fastmcp import FastMCP
 
 # Create an MCP server
@@ -167,6 +169,47 @@ def describe_table(table_name: str) -> List[Dict[str, str]]:
 
         except sqlite3.Error as e:
             raise ValueError(f"SQLite error: {str(e)}")
+
+
+@mcp.tool()
+def get_wps_selected_content() -> str:
+    """Get selected content from WPS application.
+
+    Returns:
+        The selected text content from WPS
+    """
+    try:
+        # Connect to WPS websocket server
+        uri = "ws://localhost:5000/ws"
+
+        # Create websocket connection
+        ws = websocket.WebSocket()
+        ws.connect(uri)
+
+        # Send request to get selected content
+        request = {
+            "type": "agentRequest",
+            "payload": "getSelectedContent"
+        }
+
+        ws.send(json.dumps(request))
+
+        # Wait for response
+        response = ws.recv()
+        response_data = json.loads(response)
+
+        # Close the connection
+        ws.close()
+
+        # Return the selected content
+        return response_data.get("content", "")
+
+    except websocket.WebSocketException as e:
+        raise ConnectionError(f"Websocket error: {str(e)}")
+    except json.JSONDecodeError:
+        raise ValueError("Invalid JSON response from WPS server")
+    except Exception as e:
+        raise RuntimeError(f"Error getting WPS selected content: {str(e)}")
 
 
 if __name__ == "__main__":
