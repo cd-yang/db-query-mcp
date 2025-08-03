@@ -8,7 +8,9 @@ import websocket
 from mcp.server.fastmcp import FastMCP
 
 # Create an MCP server
-mcp = FastMCP("SQLite Explorer", log_level="CRITICAL")
+mcp = FastMCP("SQLite Explorer", log_level="CRITICAL",
+              #    host="0.0.0.0", port=8000, mount_path="/mcp"
+              )
 
 
 # Path to Messages database
@@ -171,47 +173,47 @@ def describe_table(table_name: str) -> List[Dict[str, str]]:
             raise ValueError(f"SQLite error: {str(e)}")
 
 
-@mcp.tool()
-def get_wps_selected_content() -> str:
-    """Get selected content from WPS application.
+# @mcp.tool()
+# def get_wps_selected_content() -> str:
+#     """Get selected content from WPS application.
 
-    Returns:
-        The selected text content from WPS
-    """
-    try:
-        # Connect to WPS websocket server
-        uri = "ws://localhost:5000/ws"
+#     Returns:
+#         The selected text content from WPS
+#     """
+#     try:
+#         # Connect to WPS websocket server
+#         uri = "ws://localhost:5000/ws"
 
-        # Create websocket connection
-        ws = websocket.WebSocket()
-        ws.connect(uri)
+#         # Create websocket connection
+#         ws = websocket.WebSocket()
+#         ws.connect(uri)
 
-        # Send request to get selected content
-        request = {
-            "type": "agentRequest",
-            "payload": "getSelectedContent"
-        }
+#         # Send request to get selected content
+#         request = {
+#             "type": "agentRequest",
+#             "payload": "getSelectedContent"
+#         }
 
-        ws.send(json.dumps(request))
+#         ws.send(json.dumps(request))
 
-        # Wait for response
-        response = ws.recv()
-        response_data = json.loads(response)
+#         # Wait for response
+#         response = ws.recv()
+#         response_data = json.loads(response)
 
-        # Close the connection
-        ws.close()
+#         # Close the connection
+#         ws.close()
 
-        # Return the selected content
-        return response_data.get("content", "")
+#         # Return the selected content
+#         return response_data.get("content", "")
 
-    except websocket.WebSocketException as e:
-        raise ConnectionError(f"Websocket error: {str(e)}")
-    except json.JSONDecodeError:
-        raise ValueError("Invalid JSON response from WPS server")
-    except Exception as e:
-        raise RuntimeError(f"Error getting WPS selected content: {str(e)}")
+#     except websocket.WebSocketException as e:
+#         raise ConnectionError(f"Websocket error: {str(e)}")
+#     except json.JSONDecodeError:
+#         raise ValueError("Invalid JSON response from WPS server")
+#     except Exception as e:
+#         raise RuntimeError(f"Error getting WPS selected content: {str(e)}")
 
 
 if __name__ == "__main__":
     print("Starting server...")
-    mcp.run(transport='stdio')
+    mcp.run(transport='streamable-http')

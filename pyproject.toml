@@ -10,4 +10,7 @@ dependencies = [
     "langchain-ollama>=0.1.0",
     "python-dotenv>=1.0.0",
     "websocket-client>=1.6.0",
+    "mem0ai>=0.1.115",
+    "smolagents[helium,mcp,toolkit]>=1.20.0",
+    "helium>=5.1.1",
 ]
